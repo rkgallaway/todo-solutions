@@ -14,7 +14,7 @@ const List = ({list, toggleComplete}) => {
    * >> will only show when there is a next page
    * note:  not ideal, but all pages will show.  even if there are 100
    */
-  const renderList = list.filter( item => settings.completed ? true : !item.complete)
+  const renderList = settings.completed ? list : list.filter( item => settings.completed ? true : !item.complete)
   const listStart = settings.pageItems * page || 0;
   const listEnd = listStart + settings.pageItems || list.length;
   const pages = new Array(Math.ceil(renderList.length / settings.pageItems)).fill('');

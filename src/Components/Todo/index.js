@@ -5,13 +5,12 @@ import Header from '../Header';
 
 import { v4 as uuid } from 'uuid';
 
-const ToDo = () => {
+const ToDo = ({incomplete, setIncomplete}) => {
 
   const [defaultValues] = useState({
     difficulty: 4,
   });
   const [list, setList] = useState([]);
-  const [incomplete, setIncomplete] = useState([]);
   const { handleChange, handleSubmit } = useForm(addItem, defaultValues);
 
   function addItem(item) {
@@ -48,8 +47,6 @@ const ToDo = () => {
 
   return (
     <>
-      <Header incomplete={incomplete} />
-
       <form onSubmit={handleSubmit}>
 
         <h2>Add To Do Item</h2>
