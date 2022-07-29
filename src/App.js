@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ToDo from './Components/Todo';
 import Header from './Components/Header';
 import SettingsForm from './Components/SettingsForm';
+import { AuthContext } from './Context/Auth';
+import { When } from 'react-if';
+
 
 const App = () => {
   const [incomplete, setIncomplete] = useState([]);
