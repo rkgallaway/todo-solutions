@@ -1,20 +1,19 @@
 import { useState, useContext } from "react";
+import { AuthContext } from "../../Context/Auth";
 import { SettingsContext } from '../../Context/Settings';
+import { EditableText } from '@blueprintjs/core';
+import Auth from "../Auth";
 import './styles.scss'
 
-const List = ({list, toggleComplete}) => {
+const List = ({ list, toggleComplete, deleteItem, updateItem }) => {
 
   const settings = useContext(SettingsContext);
+  const { can } = useContext(AuthContext);
   const [page, setPage] = useState(0);
+  const update = can('update');
 
-  /** pagination logic:
-   * 
-   * pagination buttons show when enough items to populate a second page.
-   * << will only show when there is a previous page
-   * >> will only show when there is a next page
-   * note:  not ideal, but all pages will show.  even if there are 100
-   */
-  const renderList = settings.completed ? list : list.filter( item => settings.completed ? true : !item.complete)
+  // Pagination
+  const renderList = settings.completed ? list : list.filter(item => settings.completed ? true : !item.complete)
   const listStart = settings.pageItems * page || 0;
   const listEnd = listStart + settings.pageItems || list.length;
   const pages = new Array(Math.ceil(renderList.length / settings.pageItems)).fill('');
@@ -30,25 +29,55 @@ const List = ({list, toggleComplete}) => {
     setPage(nxt);
   }
 
-  return(
+  return (
     <>
-    {displayList.map(item => (
-      <div key={item.id}>
-        <p>{item.text}</p>
-        <p><small>Assigned to: {item.assignee}</small></p>
-        <p><small>Difficulty: {item.difficulty}</small></p>
-        <div onClick={() => toggleComplete(item.id)}>Complete: {item.complete.toString()}</div>
-        <hr />
-      </div>
-    ))}
+      {displayList.map(item => (
+        <div key={item.id}>
+          {
+            update ?
+              <>
+                <span>Task: </span>
+                <EditableText style={{ display: 'inline-block' }} onConfirm={(value) => updateItem(item.id, { text: value })} defaultValue={item.text} placeholder={item.text} />
+              </>
+              :
+              <p>{item.text}</p>
+          }
+          {
+            update ?
+              <>
+                <span>Assigned To: </span>
+                <EditableText onConfirm={(value) => updateItem(item.id, { assignee: value })} defaultValue={item.assignee} placeholder={item.assignee} />
+              </>
+              :
+              <p>{item.assignee}</p>
+          }
+          {
+            update ?
+              <>
+                <span>Difficulty: </span>
+                <EditableText onConfirm={(value) => updateItem(item.id, { difficulty: value })} defaultValue={item.difficulty} placeholder={item.text} />
+              </>
+              :
+              <p>{item.difficulty}</p>
+          }
+          <button onClick={() => toggleComplete(item.id)}>Complete: {item.complete.toString()}</button>
+          <Auth capability={'delete'}>
+            <button onClick={() => deleteItem(item.id)}> Delete </button>
+          </Auth>
+          <Auth capability={'update'}>
+            <p>task editing available</p>
+          </Auth>
+          <hr />
+        </div>
+      ))}
 
-    {page >= 1 && <button onClick={handlePrevious}>previous</button>}
-    {
-      pages.length > 1 && pages.map((n, index) => (
-        <button key={`page-${index}`} onClick={() => setPage(index)}>{index + 1}</button>
-      ))
-    }
-    {page + 2 <= pages.length && <button onClick={handleNext}>next</button>}
+      {page >= 1 && <button onClick={handlePrevious}>&lt;&lt;</button>}
+      {
+        pages.length > 1 && pages.map((n, index) => (
+          <button key={`page-${index}`} onClick={() => setPage(index)}>{index + 1}</button>
+        ))
+      }
+      {page + 2 <= pages.length && <button onClick={handleNext}>&gt;&gt;</button>}
     </>
   )
 }

@@ -9,7 +9,7 @@ const testUsers = {
     username: 'admin',
     password: 'ADMIN',
     email: 'admin@fakeuser.com',
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZTBlZDFiMzNjZTQ5MDAxODlmMzhiNyIsImNhcGFiaWxpdGllcyI6WyJjcmVhdGUiLCJ1cGRhdGUiLCJyZWFkIiwiZGVsZXRlIl0sInR5cGUiOiJ1c2VyIiwiaWF0IjoxNjU4OTA3OTMxLCJleHAiOjE2NTg5MTE1MzF9.bqe-52if5K50rGn30P4fheuAa2qWuxse9tWiuH4cnUM',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZTM1OGI1NzAzOTM2MDAxODAyYThlMSIsImNhcGFiaWxpdGllcyI6WyJjcmVhdGUiLCJ1cGRhdGUiLCJyZWFkIiwiZGVsZXRlIl0sInR5cGUiOiJ1c2VyIiwiaWF0IjoxNjU5MDY2NTQ5LCJleHAiOjE2NTkwNzAxNDl9.efsLBIA9wqw6EFx9YuS166MjWP_7vQQkM2wrRVOLlV4',
   },
   editor: {
     username: 'editor',
@@ -39,14 +39,14 @@ function AuthProvider({ children }) {
   let [user, setUser] = useState({});
 
   const can = (capability) => {
-    return user?.validUser?.capabilities?.includes(capability); 
+    return user?.capabilities?.includes(capability); 
   }
 
   const login = async (username, password) => {
     let authCredentials = testUsers[username]; 
     if (authCredentials && authCredentials.password === password) {
       try {
-        _validateToken(authCredentials);
+        _validateToken(authCredentials.token);
       } catch (e) {
         console.error(e);
       }
