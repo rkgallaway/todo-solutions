@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import useForm from '../../hooks/form.js';
 import List from '../List';
-import Header from '../Header';
-
+import { AuthContext } from '../../Context/Auth/index.js';
 import { v4 as uuid } from 'uuid';
+import { When } from 'react-if';
 
-const ToDo = ({incomplete, setIncomplete}) => {
+const ToDo = ({ incomplete, setIncomplete }) => {
 
+  const { can } = useContext(AuthContext);
   const [defaultValues] = useState({
     difficulty: 4,
   });
@@ -22,15 +23,20 @@ const ToDo = ({incomplete, setIncomplete}) => {
   }
 
   function deleteItem(id) {
-    const items = list.filter( item => item.id !== id );
+    const items = list.filter(item => item.id !== id);
     setList(items);
+  }
+
+  function updateItem(id, data){
+    const updatedItems = list.map(item => item.id === id ? {...item, ...data} : item)
+    setList(updatedItems)
   }
 
   function toggleComplete(id) {
 
-    const items = list.map( item => {
-      if ( item.id === id ) {
-        item.complete = ! item.complete;
+    const items = list.map(item => {
+      if (item.id === id) {
+        item.complete = !item.complete;
       }
       return item;
     });
@@ -47,31 +53,34 @@ const ToDo = ({incomplete, setIncomplete}) => {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
 
-        <h2>Add To Do Item</h2>
+      <When condition={can('create')}>
+        <form onSubmit={handleSubmit}>
 
-        <label>
-          <span>To Do Item</span>
-          <input onChange={handleChange} name="text" type="text" placeholder="Item Details" />
-        </label>
+          <h2>Add To Do Item</h2>
 
-        <label>
-          <span>Assigned To</span>
-          <input onChange={handleChange} name="assignee" type="text" placeholder="Assignee Name" />
-        </label>
+          <label>
+            <span>To Do Item</span>
+            <input onChange={handleChange} name="text" type="text" placeholder="Item Details" />
+          </label>
 
-        <label>
-          <span>Difficulty</span>
-          <input onChange={handleChange} defaultValue={defaultValues.difficulty} type="range" min={1} max={5} name="difficulty" />
-        </label>
+          <label>
+            <span>Assigned To</span>
+            <input onChange={handleChange} name="assignee" type="text" placeholder="Assignee Name" />
+          </label>
 
-        <label>
-          <button type="submit">Add Item</button>
-        </label>
-      </form>
+          <label>
+            <span>Difficulty</span>
+            <input onChange={handleChange} defaultValue={defaultValues.difficulty} type="range" min={1} max={5} name="difficulty" />
+          </label>
 
-      <List list={list} toggleComplete={toggleComplete}/>
+          <label>
+            <button type="submit">Add Item</button>
+          </label>
+        </form>
+      </When>
+
+      <List list={list} toggleComplete={toggleComplete} deleteItem={deleteItem} updateItem={updateItem}/>
 
     </>
   );
