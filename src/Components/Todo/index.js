@@ -1,11 +1,14 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import useForm from '../../hooks/form.js';
 import List from '../List';
 import { AuthContext } from '../../Context/Auth/index.js';
 import { v4 as uuid } from 'uuid';
 import { When } from 'react-if';
+import useAxios from '../../hooks/useAxios.js';
 
 const ToDo = ({ incomplete, setIncomplete }) => {
+
+  const { makeRequest, response } = useAxios();
 
   const { can } = useContext(AuthContext);
   const [defaultValues] = useState({
@@ -15,41 +18,72 @@ const ToDo = ({ incomplete, setIncomplete }) => {
   const { handleChange, handleSubmit } = useForm(addItem, defaultValues);
 
   function addItem(item) {
-    item.id = uuid();
-    item.complete = false;
-    // console.log(item);
-    setList([...list, item]);
-    // setShowList(true)
+    const options = {
+      method: 'post',
+      baseURL: 'https://api-js401.herokuapp.com/api/v1',
+      url: '/todo',
+      data: item,
+    };
+    makeRequest(options);
   }
 
   function deleteItem(id) {
-    const items = list.filter(item => item.id !== id);
-    setList(items);
+    const options = {
+      method: 'delete',
+      baseURL: 'https://api-js401.herokuapp.com/api/v1',
+      url: `/todo/${id}`,
+    };
+    makeRequest(options);
   }
 
-  function updateItem(id, data){
-    const updatedItems = list.map(item => item.id === id ? {...item, ...data} : item)
+  function updateItem(id, data) {
+    const updatedItems = list.map(item => item.id === id ? { ...item, ...data } : item)
     setList(updatedItems)
   }
 
   function toggleComplete(id) {
+    const item = list.filter(i => i._id === id)[0] || {};
 
-    const items = list.map(item => {
-      if (item.id === id) {
-        item.complete = !item.complete;
-      }
-      return item;
-    });
-
-    setList(items);
+    if (item._id) {
+      const options = {
+        method: 'put',
+        baseURL: 'https://api-js401.herokuapp.com/api/v1',
+        url: `/todo/${id}`,
+        data: { ...item, complete: !item.complete },
+      };
+      makeRequest(options);
+    }
 
   }
+
+  const getToDoList = useCallback(async () => {
+    const options = {
+      baseURL: 'https://api-js401.herokuapp.com/api/v1',
+      url: '/todo',
+      method: 'get',
+    };
+    makeRequest(options);
+
+  }, [makeRequest]);
 
   useEffect(() => {
     let incompleteCount = list.filter(item => !item.complete).length;
     setIncomplete(incompleteCount);
     document.title = `To Do List: ${incomplete}`;
   }, [list]);
+
+  useEffect(() => {
+    if (response.results) {
+      setList(response.results);
+    }
+    else {
+      getToDoList();
+    }
+  }, [response, getToDoList]);
+
+  useEffect(() => {
+    getToDoList();
+  }, [getToDoList]);
 
   return (
     <>
@@ -80,7 +114,7 @@ const ToDo = ({ incomplete, setIncomplete }) => {
         </form>
       </When>
 
-      <List list={list} toggleComplete={toggleComplete} deleteItem={deleteItem} updateItem={updateItem}/>
+      <List list={list} toggleComplete={toggleComplete} deleteItem={deleteItem} updateItem={updateItem} />
 
     </>
   );
