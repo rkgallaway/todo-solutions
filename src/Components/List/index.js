@@ -32,12 +32,12 @@ const List = ({ list, toggleComplete, deleteItem, updateItem }) => {
   return (
     <>
       {displayList.map(item => (
-        <div key={item.id}>
+        <div key={item._id}>
           {
             update ?
               <>
                 <span>Task: </span>
-                <EditableText style={{ display: 'inline-block' }} onConfirm={(value) => updateItem(item.id, { text: value })} defaultValue={item.text} placeholder={item.text} />
+                <EditableText style={{ display: 'inline-block' }} onConfirm={(value) => updateItem(item._id, { text: value })} defaultValue={item.text} placeholder={item.text} />
               </>
               :
               <p>{item.text}</p>
@@ -46,7 +46,7 @@ const List = ({ list, toggleComplete, deleteItem, updateItem }) => {
             update ?
               <>
                 <span>Assigned To: </span>
-                <EditableText onConfirm={(value) => updateItem(item.id, { assignee: value })} defaultValue={item.assignee} placeholder={item.assignee} />
+                <EditableText onConfirm={(value) => updateItem(item._id, { assignee: value })} defaultValue={item.assignee} placeholder={item.assignee} />
               </>
               :
               <p>{item.assignee}</p>
@@ -55,14 +55,14 @@ const List = ({ list, toggleComplete, deleteItem, updateItem }) => {
             update ?
               <>
                 <span>Difficulty: </span>
-                <EditableText onConfirm={(value) => updateItem(item.id, { difficulty: value })} defaultValue={item.difficulty} placeholder={item.text} />
+                <EditableText onConfirm={(value) => updateItem(item._id, { difficulty: value })} defaultValue={item.difficulty} placeholder={item.text} />
               </>
               :
               <p>{item.difficulty}</p>
           }
-          <button onClick={() => toggleComplete(item.id)}>Complete: {item.complete.toString()}</button>
+          <button onClick={() => toggleComplete(item._id)}>Complete: {item.complete.toString()}</button>
           <Auth capability={'delete'}>
-            <button onClick={() => deleteItem(item.id)}> Delete </button>
+            <button onClick={() => deleteItem(item._id)}> Delete </button>
           </Auth>
           <Auth capability={'update'}>
             <p>task editing available</p>
