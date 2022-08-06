@@ -74,12 +74,12 @@ const ToDo = ({ incomplete, setIncomplete }) => {
 
   useEffect(() => {
     if (response.results) {
-      response.results && setList(response.results);
+      setList(response.results);
     }
     else {
       getToDoList();
     }
-  }, [response, getToDoList, setList]);
+  }, [response, getToDoList]);
 
   useEffect(() => {
     getToDoList();
